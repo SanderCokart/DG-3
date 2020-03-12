@@ -9,6 +9,9 @@ class PersonContextProvider extends Component {
         this.state = {
             people: [],
         };
+
+        //upon construct get data from server
+        this.readPerson();
     }
 
     /**
@@ -46,8 +49,25 @@ class PersonContextProvider extends Component {
             });
     }
 
-    //read
+    /**
+     * read
+     */
+    readPerson() {
+        axios.get('/api/person/read')
+            .then(response => {
+                //set array people to people from server
+                this.setState({
+                    people: response.data.people,
+                })
+            })
 
+            //catch any errors
+            .catch(error => {
+
+                //log error
+                console.error(error);
+            });
+    }
 
     //update
 
