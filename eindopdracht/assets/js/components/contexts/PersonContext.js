@@ -35,7 +35,7 @@ class PersonContextProvider extends Component {
                 //overwrite array
                 this.setState({
                     people: people,
-                })
+                });
             })
 
             //catch any errors
