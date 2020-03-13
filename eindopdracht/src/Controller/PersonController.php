@@ -71,7 +71,13 @@ class PersonController extends AbstractController
      */
     public function read()
     {
+        $people = $this->personRepository->findAll();
 
+        $arrayOfPeople = [];
+        foreach ($people as $person) {
+            $arrayOfPeople[] = $person->toArray();
+        }
+        return $this->json($arrayOfPeople);
     }
 
     /**
