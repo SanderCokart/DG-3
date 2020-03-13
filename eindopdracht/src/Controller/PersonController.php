@@ -6,6 +6,7 @@ use App\Entity\Person;
 use App\Repository\PersonRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -39,11 +40,29 @@ class PersonController extends AbstractController
     /**
      * @Route("/create", name="api_person_create")
      * @param Request $request
+     * @return JsonResponse
      * @author SanderCokartSchool
      */
     public function create(Request $request)
     {
+        $content = json_decode($request->getContent());
 
+        $fName = isset($content->fName) ? htmlspecialchars($content->fName) : 'N/A';
+        $lName = isset($content->lName) ? htmlspecialchars($content->lName) : 'N/A';
+        $age = isset($content->age) ? htmlspecialchars($content->age) : "N/A";
+
+        $person = new Person();
+
+        $person->setFName($fName);
+        $person->setLName($lName);
+        $person->setAge($age);
+
+        $this->entityManager->persist($person);
+        $this->entityManager->flush();
+
+        return $this->json([
+            'person' => $person,
+        ]);
     }
 
     /**
@@ -52,7 +71,13 @@ class PersonController extends AbstractController
      */
     public function read()
     {
+        $people = $this->personRepository->findAll();
 
+        $arrayOfPeople = [];
+        foreach ($people as $person) {
+            $arrayOfPeople[] = $person->toArray();
+        }
+        return $this->json($arrayOfPeople);
     }
 
     /**
