@@ -73,6 +73,7 @@ class PersonController extends AbstractController
      */
     public function delete(Person $person)
     {
-
+        $this->entityManager->remove($person);
+        $this->entityManager->flush();
     }
 }
