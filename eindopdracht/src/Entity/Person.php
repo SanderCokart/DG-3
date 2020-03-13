@@ -31,11 +31,6 @@ class Person
      */
     private $age;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getFName(): ?string
     {
         return $this->fName;
@@ -70,5 +65,15 @@ class Person
         $this->age = $age;
 
         return $this;
+    }
+
+    public function toArray()
+    {
+        return ['id' => $this->getId(), 'fName' => $this->fName, 'lName' => $this->lName, 'age' => $this->age];
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 }
