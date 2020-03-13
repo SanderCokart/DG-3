@@ -33,7 +33,7 @@ class PersonController extends AbstractController
      */
     public function __construct(EntityManagerInterface $entityManager, PersonRepository $personRepository)
     {
-        $this->entityManager = $entityManager;
+        $this->entityManager    = $entityManager;
         $this->personRepository = $personRepository;
     }
 
@@ -84,10 +84,31 @@ class PersonController extends AbstractController
      * @Route("/update/{id}", name="api_person_update")
      * @param Request $request
      * @param Person $person
+     * @return JsonResponse
      * @author Sander Cokart
      */
     public function update(Request $request, Person $person)
     {
+        $content = json_decode($request->getContent());
+
+        $oldFName = $person->getFName();
+        $oldLName = $person->getLName();
+        $oldAge   = $person->getAge();
+
+        $newFName = isset($content->fName) ? $content->fName : $oldFName;
+        $newLName = isset($content->lName) ? $content->lName : $oldLName;
+        $newAge   = isset($content->age) ? $content->age : $oldAge;
+
+        $person->setFName($newFName);
+        $person->setLName($newLName);
+        $person->setAge($newAge);
+
+        $this->entityManager->flush();
+
+        return $this->json([
+            'person' => $person->toArray(),
+        ]);
+
 
     }
 
@@ -98,6 +119,7 @@ class PersonController extends AbstractController
      */
     public function delete(Person $person)
     {
-
+        $this->entityManager->remove($person);
+        $this->entityManager->flush();
     }
 }
