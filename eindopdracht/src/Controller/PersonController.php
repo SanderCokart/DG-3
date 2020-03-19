@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -115,11 +116,13 @@ class PersonController extends AbstractController
     /**
      * @Route("/delete/{id}", name="api_person_delete")
      * @param Person $person
+     * @return Response
      * @author Sander Cokart
      */
     public function delete(Person $person)
     {
         $this->entityManager->remove($person);
         $this->entityManager->flush();
+        return new Response();
     }
 }
