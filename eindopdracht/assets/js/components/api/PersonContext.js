@@ -1,5 +1,5 @@
 import React, {Component, createContext} from 'react';
-import {AxiosInstance as axios} from "axios";
+import axios from 'axios';
 
 export const PersonContext = createContext();
 
@@ -22,10 +22,7 @@ class PersonContextProvider extends Component {
      * @param {string} person.lName - persons' last name
      * @param {int} person.age - persons' age
      */
-    createPerson(event, person) {
-        //prevent form from refreshing the page
-        event.preventDefault();
-
+    createPerson(person) {
         //post data to route and send the person
         axios.post('/api/person/create', person)
             .then(response => {
@@ -33,7 +30,7 @@ class PersonContextProvider extends Component {
                 let people = [...this.state.people];
 
                 //push new person received from server to array
-                data.push(response.data.person);
+                people.push(response.data.person);
 
                 //overwrite array
                 this.setState({
@@ -57,8 +54,8 @@ class PersonContextProvider extends Component {
             .then(response => {
                 //set array people to people from server
                 this.setState({
-                    people: response.data.people,
-                })
+                    people: response.data,
+                });
             })
 
             //catch any errors
@@ -78,7 +75,7 @@ class PersonContextProvider extends Component {
      * @param {int} personToBeUpdated.age - persons' age
      */
     updatePerson(personToBeUpdated) {
-        axios.put('/api/todo/update/' + personToBeUpdated.id)
+        axios.put('/api/person/update/' + personToBeUpdated.id, personToBeUpdated)
             .then(response => {
 
                 //create copy of state
@@ -113,13 +110,13 @@ class PersonContextProvider extends Component {
     /**
      *
      * @param {object} personToDelete - contains data of the created person
-     * @param {int} person.id - persons' id
-     * @param {string} person.fName - persons' first name
-     * @param {string} person.lName - persons' last name
-     * @param {int} person.age - persons' age
+     * @param {int} personToDelete.id - persons' id
+     * @param {string} personToDelete.fName - persons' first name
+     * @param {string} personToDelete.lName - persons' last name
+     * @param {int} personToDelete.age - persons' age
      */
     deletePerson(personToDelete) {
-        axios.delete('/api/todo/delete/' + personToDelete.id)
+        axios.delete('/api/person/delete/' + personToDelete.id)
             .then(response => {
                 //create copy current state
                 let people = [...this.state.people];
@@ -147,7 +144,9 @@ class PersonContextProvider extends Component {
         return (
             <PersonContext.Provider value={{
                 ...this.state,
-
+                createPerson: this.createPerson.bind(this),
+                updatePerson: this.updatePerson.bind(this),
+                deletePerson: this.deletePerson.bind(this),
             }}>
                 {this.props.children}
             </PersonContext.Provider>
@@ -156,4 +155,4 @@ class PersonContextProvider extends Component {
 
 }
 
-export default PersonContext;
+export default PersonContextProvider;
