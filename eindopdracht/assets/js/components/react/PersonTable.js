@@ -37,6 +37,7 @@ function PersonTable() {
     const [updateLName, setUpdateLName] = useState(undefined);
     const [updateAge, setUpdateAge] = useState(undefined);
     //</editor-fold>
+    const [filter, setFilter] = useState('');
 
     //methods
     //prevent refresh and submit data to API
@@ -77,110 +78,133 @@ function PersonTable() {
         setUpdateAge(null);
     };
 
+    //filter
+    const filteredContext = [...personContext.people].filter(person => {
+        const regExp = new RegExp(filter, 'i');
+        return person.id.toString().match(regExp) ||
+            person.fName.match(regExp) ||
+            person.lName.match(regExp) ||
+            person.age.toString().match(regExp);
+    });
 
     return (
-        <Table>
-            {/*table header START*/}
-            <TableHead>
-                <TableRow>
-                    <TableCell><Typography>First Name</Typography></TableCell>
-                    <TableCell><Typography>Last Name</Typography></TableCell>
-                    <TableCell><Typography>Age</Typography></TableCell>
-                    <TableCell><Typography>Actions</Typography></TableCell>
-                </TableRow>
-            </TableHead>
-            {/*table header END*/}
-            <TableBody>
-                {/*AddPerson START*/}
-                <TableRow>
-                    <TableCell>
-                        <form onSubmit={addPerson}>
-                            <TextField fullWidth
-                                       value={addFName}
-                                       label="First Name"
-                                       onChange={e => setAddFName(e.target.value)}/>
-                        </form>
-                    </TableCell>
-                    <TableCell>
-                        <form onSubmit={addPerson}>
-                            <TextField fullWidth
-                                       value={addLName}
-                                       label="Last Name"
-                                       onChange={e => setAddLName(e.target.value)}/>
-                        </form>
-                    </TableCell>
-                    <TableCell>
-                        <form onSubmit={addPerson}>
-                            <TextField type="number"
-                                       fullWidth
-                                       value={addAge}
-                                       label="Age"
-                                       onChange={e => setAddAge(e.target.value)}/>
-                        </form>
-                    </TableCell>
-                    <TableCell>
-                        <Tooltip title={<Typography>{'Add ' + addFName + ' ' + addLName + ' to the list'}</Typography>}>
-                            <IconButton onClick={addPerson}>
-                                <AddIcon/>
-                            </IconButton>
-                        </Tooltip>
-                    </TableCell>
-                </TableRow>
-                {/*//AddPerson END*/}
-
-                {/*//data and update START*/}
-                {personContext.people.map(person => (
-                    <TableRow key={person.id}>
-                        {updateFieldId === person.id ?
-                            // if updateFieldId IS set (show update input fields)
-                         <Fragment>
-                             <TableCell>
-                                 <form onSubmit={updatePerson}>
-                                     <TextField fullWidth
-                                                value={updateFName}
-                                                onChange={(e) => setUpdateFName(e.target.value)}/>
-                                 </form>
-                             </TableCell>
-                             <TableCell>
-                                 <form onSubmit={updatePerson}>
-                                     <TextField fullWidth
-                                                value={updateLName}
-                                                onChange={(e) => setUpdateLName(e.target.value)}/>
-                                 </form>
-                             </TableCell>
-                             <TableCell>
-                                 <form onSubmit={updatePerson}>
-                                     <TextField fullWidth
-                                                value={updateAge}
-                                                onChange={(e) => setUpdateAge(e.target.value)}/>
-                                 </form>
-                             </TableCell>
-                             <TableCell>
-                                 <IconButton onClick={updatePerson}><DoneIcon/></IconButton>
-                                 <IconButton onClick={() => setUpdateFieldId(null)}><CancelIcon/></IconButton>
-                             </TableCell>
-                         </Fragment>
-                                                     :
-                            // if updateFieldId is NOT set (show data fields)
-                         <Fragment>
-                             <TableCell><Typography>{person.fName}</Typography></TableCell>
-                             <TableCell><Typography>{person.lName}</Typography></TableCell>
-                             <TableCell><Typography>{person.age}</Typography></TableCell>
-                             <TableCell>
-                                 <IconButton onClick={() => initUpdate(person)}><EditIcon/></IconButton>
-                                 <IconButton onClick={e => {
-                                     deletePerson(e, person);
-                                 }}>
-                                     <DeleteIcon/>
-                                 </IconButton>
-                             </TableCell>
-                         </Fragment>
-                        }
+        <Fragment>
+            <Table>
+                {/*table header START*/}
+                <TableHead>
+                    <TableRow>
+                        <TableCell><Typography>First Name</Typography></TableCell>
+                        <TableCell><Typography>Last Name</Typography></TableCell>
+                        <TableCell><Typography>Age</Typography></TableCell>
+                        <TableCell><Typography>Actions</Typography></TableCell>
+                        <TableCell><Typography>Filter</Typography></TableCell>
                     </TableRow>
-                ))}
-                {/*//data and update END*/}
-            </TableBody>
-        </Table>
+                </TableHead>
+                {/*table header END*/}
+                <TableBody>
+                    {/*AddPerson START*/}
+                    <TableRow>
+                        <TableCell>
+                            <form onSubmit={addPerson}>
+                                <TextField fullWidth
+                                           value={addFName}
+                                           label="First Name"
+                                           onChange={e => setAddFName(e.target.value)}/>
+                            </form>
+                        </TableCell>
+                        <TableCell>
+                            <form onSubmit={addPerson}>
+                                <TextField fullWidth
+                                           value={addLName}
+                                           label="Last Name"
+                                           onChange={e => setAddLName(e.target.value)}/>
+                            </form>
+                        </TableCell>
+                        <TableCell>
+                            <form onSubmit={addPerson}>
+                                <TextField type="number"
+                                           fullWidth
+                                           value={addAge}
+                                           label="Age"
+                                           onChange={e => setAddAge(e.target.value)}/>
+                            </form>
+                        </TableCell>
+                        <TableCell>
+                            <Tooltip title={
+                                <Typography>{'Add ' + addFName + ' ' + addLName + ' to the list'}</Typography>}>
+                                <IconButton onClick={addPerson}>
+                                    <AddIcon/>
+                                </IconButton>
+                            </Tooltip>
+                        </TableCell>
+
+                        {/*FILTER*/}
+                        <TableCell>
+                            <TextField type="text"
+                                       label="Search for anything"
+                                       value={filter}
+                                       onChange={e => setFilter(e.target.value)}
+                                       fullWidth/>
+                        </TableCell>
+                        {/*FILTER*/}
+
+                    </TableRow>
+                    {/*//AddPerson END*/}
+
+                    {/*//data and update START*/}
+                    {filteredContext.map(person => (
+                        <TableRow key={person.id}>
+                            {updateFieldId === person.id ?
+                                // if updateFieldId IS set (show update input fields)
+                             <Fragment>
+                                 <TableCell>
+                                     <form onSubmit={updatePerson}>
+                                         <TextField fullWidth
+                                                    value={updateFName}
+                                                    onChange={(e) => setUpdateFName(e.target.value)}/>
+                                     </form>
+                                 </TableCell>
+                                 <TableCell>
+                                     <form onSubmit={updatePerson}>
+                                         <TextField fullWidth
+                                                    value={updateLName}
+                                                    onChange={(e) => setUpdateLName(e.target.value)}/>
+                                     </form>
+                                 </TableCell>
+                                 <TableCell>
+                                     <form onSubmit={updatePerson}>
+                                         <TextField fullWidth
+                                                    value={updateAge}
+                                                    onChange={(e) => setUpdateAge(e.target.value)}/>
+                                     </form>
+                                 </TableCell>
+                                 <TableCell>
+                                     <IconButton onClick={updatePerson}><DoneIcon/></IconButton>
+                                     <IconButton onClick={() => setUpdateFieldId(null)}><CancelIcon/></IconButton>
+                                 </TableCell>
+                             </Fragment>
+                                                         :
+                                // if updateFieldId is NOT set (show data fields)
+                             <Fragment>
+                                 <TableCell><Typography>{person.fName}</Typography></TableCell>
+                                 <TableCell><Typography>{person.lName}</Typography></TableCell>
+                                 <TableCell><Typography>{person.age}</Typography></TableCell>
+                                 <TableCell>
+                                     <IconButton onClick={() => initUpdate(person)}><EditIcon/></IconButton>
+                                     <IconButton onClick={e => {
+                                         deletePerson(e, person);
+                                     }}>
+                                         <DeleteIcon/>
+                                     </IconButton>
+                                 </TableCell>
+                             </Fragment>
+                            }
+                        </TableRow>
+                    ))}
+                    {/*//data and update END*/}
+                </TableBody>
+            </Table>
+        </Fragment>
     );
 }
 
